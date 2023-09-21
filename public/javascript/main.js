@@ -68,14 +68,18 @@ function paintGame() {
         
                         //Draw button  
                         if(btn.text === 'Draw'){
-                            if(btn.color === 'cyan') btn.color = 'green'
+                            drawDeckSprite.animate = "turn"
+                            console.log(drawDeckSprite.animate)
                         }
                         //Lock button
                         else if(btn.text === 'Lock' && (GAMESTATE.phase === 'play' || GAMESTATE.phase === 'done')) {
                             if(PLAYER.isLocked) return
+
+                            // Lock player's gamestate instance
+                            PLAYER.isLocked = true
     
                             // Telling server to set the player's isLocked variable to true
-                            GAMESTATE.phase = 'null'
+                            GAMESTATE.phase = 'Locking'
                             socket.emit('player-action', JSON.stringify({
                                 roomId: localStorage.getItem('roomId'), 
                                 action: 'lock-play', 
@@ -142,7 +146,18 @@ function paintGame() {
         }
     }
     
-    BUTTONS.forEach(btn =>  btn.drawButton())
+    BUTTONS.forEach(btn =>  {
+        let color = "white"
+        //Check if button is lock button
+        if(btn.text === "Lock"){
+            //Check if player is locked.
+            if(PLAYER.isLocked){
+                color = "blue"
+            }
+        }
+        
+        btn.drawButton(color)
+    })
     CARDS.forEach(card =>  card.draw())
 
     // Round functionality
@@ -155,6 +170,7 @@ function paintGame() {
         // Check if player is locked
         if(PLAYER.isLocked){
             console.log("You are locked, Switching players")
+            GAMESTATE.phase = "Switching"
             // Tell server to switch players
             socket.emit('player-action', JSON.stringify({
                 roomId: localStorage.getItem('roomId'), 

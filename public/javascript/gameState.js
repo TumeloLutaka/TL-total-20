@@ -93,12 +93,12 @@ function tabulatePoints(room, player, opponent, card) {
     player.points += (card.number * multipler)
     if(player.points < 0) player.points = 0
 
-    // Check if player has hit exactly 21 points or above, if so lock them
-    if(player.points === 21){
+    // Check if player has hit exactly 20 points or above, if so lock them
+    if(player.points === 20){
         lockPlayer(player, room)
     }
-    // Check if player points exceed 21. If so, plyer has lost and opponent wins a point
-    else if (player.points > 21) {
+    // Check if player points exceed 20. If so, player has lost and opponent wins a point
+    else if (player.points > 20) {
         // Round is overs and player has lost begin new round. Add point to player wins.
         let roundWinner = opponent 
         

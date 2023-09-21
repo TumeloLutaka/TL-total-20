@@ -46,10 +46,10 @@ class ImageTextSprite {
         this.image.src = imageSrc
     }
 
-    draw(text) {
+    draw(text, color = "white") {
         context.drawImage(this.image, this.position.x, this.position.y, this.width, this.height)
         // Drawing text
-        context.fillStyle = "white"
+        context.fillStyle = color
         context.font = '25px Arial'; 
         context.textAlign = 'center';
         context.textBaseline = 'middle';
@@ -62,13 +62,28 @@ class CardSprite{
         this.width = CARD_WIDTH
         this.height = CARD_HEIGHT
         this.type = type
+        this.multipler = 1
+        this.currentImage
 
         this.image = new Image()
         this.image.src = `../img/cards/${type}/c${number}.png`
+        this.backCardImg = new Image()
+        this.backCardImg.src = `../img/cards/c.png`
+
+        this.currentImage = this.image
     }    
     
     draw() {
-        context.drawImage(this.image, this.position.x, this.position.y, this.width, this.height)
+        if(this.width === CARD_WIDTH) this.multipler = -1
+        // Start growing card.
+        else if(this.width === 0) {
+            this.currentImage = this.currentImage === this.backCardImg ? this.image  : this.backCardImg 
+            this.multipler = 1
+        }
+
+        this.width += 1 * this.multipler
+        this.position.x += -0.5 * this.multipler
+        context.drawImage(this.currentImage, this.position.x, this.position.y, this.width, this.height)
     }
 
     updateCard(number = this.number, type = this.type) {
@@ -131,8 +146,8 @@ class ButtonSprite extends ImageTextSprite {
         this.text = text
     }
 
-    drawButton() {
-        this.draw(this.text)
+    drawButton(color = "white") {
+        this.draw(this.text, color)
     }
 }
 
