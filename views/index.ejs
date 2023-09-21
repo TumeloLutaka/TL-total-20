@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/main.css">
+    <title>Total Twenty - Home</title>
+</head>
+<body>
+    <h1>Lobby</h1>
+    <form id="create-game-form">
+        <input type="text" name="create-game" id="create-game">
+        <button type="submit" class="btn">Create Game</button>
+    </form>
+    
+    <form id="join-game-form">
+        <input type="text" name="join-game" id="join-game">
+        <button type="submit" class="btn">Join Game</button>
+    </form>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/javascript/index.js"></script>
+</body>
+</html>
