@@ -4,7 +4,8 @@
   "description": "Prototype",
   "main": "server.js",
   "scripts": {
-    "dev": "nodemon server"
+    "dev": "nodemon server",
+    "start": "node server.js"
   },
   "author": "Tumelo Lutaka",
   "license": "ISC",

@@ -45,12 +45,15 @@ function paintGame() {
     phaseIndictor.draw(GAMESTATE.phase) 
     
     // Draw deckspaces
-    deckSpaces[0].update(PLAYER.deckSpaceTopCard, PLAYER.points, PLAYER.wins)
-    deckSpaces[1].update(OPPONENT.deckSpaceTopCard, OPPONENT.points, OPPONENT.wins)
+    deckSpaces[0].update(PLAYER.points, PLAYER.wins)
+    deckSpaces[1].update(OPPONENT.points, OPPONENT.wins)
     
-    // Paint draw deck with top card.
-    drawDeckSprite.updateCard(GAMESTATE.drawDeck.deck.cards[GAMESTATE.drawDeck.currentTopCard].number)
-    drawDeckSprite.draw() 
+    // Draw cards that will have animations on them.
+    drawDeckSprite.draw()
+    playerTopCardSprite.draw()
+    opponentTopCardSprite.draw()
+    animDeckSprite.draw() 
+    opponentCardSprite.draw()
     
     // Draw and add event listeners to buttons
     if(BUTTONS.length < 1){
@@ -68,8 +71,13 @@ function paintGame() {
         
                         //Draw button  
                         if(btn.text === 'Draw'){
-                            drawDeckSprite.animate = "turn"
-                            console.log(drawDeckSprite.animate)
+                            GAMESTATE.phase = "drawing"
+                            // Call server to draw card and place it on top
+                            socket.emit('player-action', JSON.stringify({
+                                roomId: localStorage.getItem('roomId'), 
+                                action: 'draw-card', 
+                                player: sessionStorage.getItem('player')
+                            }))
                         }
                         //Lock button
                         else if(btn.text === 'Lock' && (GAMESTATE.phase === 'play' || GAMESTATE.phase === 'done')) {
@@ -125,14 +133,13 @@ function paintGame() {
                     
                     var rect = canvas.getBoundingClientRect();
                     var mouseX = event.clientX - rect.left;
-                    var mouseY = event.clientY - rect.top;
+                    var mouseY = event.clientY - rect.top; 
                     
                     // Check if mouse position was over card
                     if (mouseX >= newCard.position.x && mouseX <= newCard.position.x + CARD_WIDTH && 
                         mouseY >= newCard.position.y && mouseY <= newCard.position.y + CARD_HEIGHT) {
-    
                         //Check if player points are game ending
-                        GAMESTATE.phase = 'playing'
+                        GAMESTATE.phase = 'wait'
                         socket.emit('player-action', JSON.stringify({
                             roomId: localStorage.getItem('roomId'), 
                             action: 'play-card', 
@@ -165,8 +172,8 @@ function paintGame() {
     // If game is over do not perform any round functionality
     if(GAMESTATE.winner !== null) return 
 
-    if( PLAYER.canPlay === true && GAMESTATE.phase === 'draw'){
-        
+    // Checking if it's current player's turn and they're locked.
+    if( PLAYER.canPlay === true && GAMESTATE.phase === 'playing'){
         // Check if player is locked
         if(PLAYER.isLocked){
             console.log("You are locked, Switching players")
@@ -177,19 +184,39 @@ function paintGame() {
                 action: 'lock-flip', 
                 player: sessionStorage.getItem('player')
             }))
-        } else {
-            console.log("You are not locked, Drawing")
-            // Draw card and play as normal
-            GAMESTATE.phase = 'null'
-            // Call server to draw card and place it on top
-            socket.emit('player-action', JSON.stringify({
-                roomId: localStorage.getItem('roomId'), 
-                action: 'draw-card', 
-                player: sessionStorage.getItem('player')
-            }))
-        }
+        } 
     }
 
+    if(GAMESTATE.phase === "draw") {
+        // Move draw deck animation card.
+        let deckIndex = PLAYER.canPlay ? 0 : 1
+        let topCard = PLAYER.canPlay ? playerTopCardSprite : opponentTopCardSprite
+        animDeckSprite.updateCardInfo(GAMESTATE.drawDeck.deck.cards[GAMESTATE.drawDeck.currentTopCard - 1].number)
+        animDeckSprite.animation("turn-card", {position: deckSpaces[deckIndex].centerPosition, topCard: topCard, phase:"play"})
+
+        GAMESTATE.phase = "drawing"
+    }
+
+    if(GAMESTATE.phase === "picking"){
+        // Check if moving player or opponent card.
+        if(PLAYER.canPlay){   
+            // Move animation card.
+            let pickedCard = CARDS[PLAYER.playedIndex]
+            // Animate card from hand to move to top deck
+            pickedCard.animation("move-card", {position: deckSpaces[0].centerPosition, topCard: playerTopCardSprite, phase:"done"})
+        } 
+        else {
+            // Opponent is playing, change opponet card sprite image and move card.
+            opponentCardSprite.updateCard(
+                OPPONENT.hand[OPPONENT.playedIndex].number, 
+                OPPONENT.hand[OPPONENT.playedIndex].type
+            )
+            // Move opponent animation card.
+            opponentCardSprite.animation("oppo-card", {position: deckSpaces[1].centerPosition, topCard: opponentTopCardSprite})
+        }
+
+        GAMESTATE.phase = "done"
+    }
 }
 
 document.getElementById('lobby-btn').addEventListener('click', () => {

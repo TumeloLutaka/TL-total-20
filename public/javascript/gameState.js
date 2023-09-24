@@ -56,10 +56,10 @@ function playerAction(roomId, action, data) {
         case 'play-card':
             // Change points based on card 
             card = player.hand[data.cardIndex]
-            player.deckSpaceTopCard = card
+            player.playedIndex = data.cardIndex
             // Remove card from player hand
-            player.hand.splice(data.cardIndex, 1)
-            room.gameState.phase = 'done'
+            // player.hand.splice(data.cardIndex, 1)
+            room.gameState.phase = 'picking'
             //Change player points
             tabulatePoints(room, player, opponet, card)
             break;
@@ -67,8 +67,7 @@ function playerAction(roomId, action, data) {
             // Change points based on draw deck card 
             card = room.gameState.drawDeck.deck.cards[room.gameState.drawDeck.currentTopCard]
             // Put top deck card on player deckspace and increase currentTopCard counter
-            player.deckSpaceTopCard = card
-            room.gameState.phase = 'play' 
+            room.gameState.phase = 'draw' 
             //Change player points
             tabulatePoints(room, player, opponet, card) 
             room.gameState.drawDeck.currentTopCard++  
@@ -81,9 +80,12 @@ function playerAction(roomId, action, data) {
             break;
         case 'lock-flip':
             // Switch play turn due to plyer being locked
-            room.gameState.phase = 'draw' 
+            room.gameState.phase = 'playing' 
             changePlayerTurn(room)
             break;
+        case 'next-phase':
+            room.gameState.phase = data.phase
+            break
     }
 }
 
@@ -175,21 +177,21 @@ class GameState {
         deck: new Deck(true),
         currentTopCard: 0
     }
-    this.phase = 'draw'
+    this.phase = 'playing'
     this.players = {
         player1: {
-            deckSpaceTopCard: null,
             hand: this.drawFirstFive(deck1), 
             canPlay:true,
             isLocked:false,
+            playedIndex: null,
             points: 0,
             wins: 0
         },
         player2: {
-            deckSpaceTopCard: null,
             hand: this.drawFirstFive(deck2),
             canPlay:false,
             isLocked:false,
+            playedIndex: null,
             points: 0,
             wins: 0
         }

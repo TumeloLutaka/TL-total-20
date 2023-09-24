@@ -27,12 +27,15 @@ class ImageSprite {
         this.position = position
         this.width = size.width
         this.height = size.height
+        this.visibility = true
 
         this.image = new Image()
         this.image.src = imageSrc
     }
 
     draw() {
+        // Checking if image should be shown.
+        if(!this.visibility) return
         context.drawImage(this.image, this.position.x, this.position.y, this.width, this.height)
     }
 }
@@ -61,37 +64,111 @@ class CardSprite{
         this.position = position
         this.width = CARD_WIDTH
         this.height = CARD_HEIGHT
+        this.number = number
         this.type = type
-        this.multipler = 1
+        this.animate = ""
         this.currentImage
-
+        
         this.image = new Image()
         this.image.src = `../img/cards/${type}/c${number}.png`
         this.backCardImg = new Image()
         this.backCardImg.src = `../img/cards/c.png`
-
+        
         this.currentImage = this.image
+        
+        // move animation variables.
+        this.multipler = -1
+        this.newPosition = null
+        this.speed = 5
+        this.topCard = null
+        this.nextPhase = ""
     }    
     
     draw() {
-        if(this.width === CARD_WIDTH) this.multipler = -1
-        // Start growing card.
-        else if(this.width === 0) {
-            this.currentImage = this.currentImage === this.backCardImg ? this.image  : this.backCardImg 
-            this.multipler = 1
+        // Switch to determine if animations should be played on current card
+        switch(this.animate){
+            case "draw-card":
+                animMoveCard(
+                    this, 
+                    this.topCard, 
+                    {
+                        x: canvas.width / 2 - (CARD_WIDTH / 2),
+                        y: canvas.height / 2 - (CARD_HEIGHT / 2)
+                    }, 
+                    this.animate,
+                    this.nextPhase
+                )
+                break 
+            case "move-card":
+                animMoveCard(
+                    this, 
+                    this.topCard, 
+                    {
+                        x: 0,
+                        y: 0
+                    }, 
+                    this.animate,
+                    this.nextPhase
+                )
+                break 
+            case "oppo-card":
+                animMoveCard(
+                    this, 
+                    this.topCard, 
+                    {
+                        x: canvas.width / 2 - (CARD_WIDTH / 2),
+                        y: -10 - CARD_HEIGHT
+                    }, 
+                    this.animate
+                )
+                break
+            case "turn-card":
+                animTurnCard(this, CARD_WIDTH)
+                break 
         }
 
-        this.width += 1 * this.multipler
-        this.position.x += -0.5 * this.multipler
         context.drawImage(this.currentImage, this.position.x, this.position.y, this.width, this.height)
     }
-
     updateCard(number = this.number, type = this.type) {
+        this.number = number
+        this.type = type
         let newImage = new Image()
-        newImage.src = `../img/cards/${this.type}/c${number}.png`
+        newImage.src = `../img/cards/${type}/c${number}.png`
         newImage.onload = () => {
-            this.image = newImage
+            this.currentImage = newImage
         }
+    }
+    updateCardInfo(number = this.number, type = this.type) {
+        this.number = number
+        this.type = type
+        let newImage = new Image()
+        newImage.src = `../img/cards/${type}/c${number}.png`
+        newImage.onload = () => {
+            this.image = newImage 
+        }
+    }
+    animation(animation, data){
+        // Telling card what animation to play when drawing.
+        this.animate = animation
+        
+        this.newPosition = data.position
+        this.topCard = data.topCard
+        this.multipler = -1
+        this.nextPhase = data.phase
+
+        // Switch to decide which variables to affect for animation to run properly.
+        // switch(animation){
+        //     case "move-card":
+        //     case "oppo-card":
+        //         this.newPosition = data.position
+        //         this.topCard = data.topCard
+        //         break
+        //     case "turn-card":
+        //         this.newPosition = data.position
+        //         this.topCard = data.topCard
+        //         this.multipler = -1
+        //         break
+        // }
     }
 }
 class DeckSpaceSprite extends ImageSprite {
@@ -101,18 +178,13 @@ class DeckSpaceSprite extends ImageSprite {
             size,
             imageSrc
         })
-
-        this.topCardSprite = new CardSprite({
-            position:{
-                x: this.position.x + (CARD_WIDTH / 2),
-                y: this.position.y + (CARD_HEIGHT / 2)
-            },
-            number:1,
-            type:"green"
-        })
+        this.centerPosition = {
+            x: this.position.x + (CARD_WIDTH / 2),
+            y: this.position.y + (CARD_HEIGHT / 2)
+        }
     }
 
-    update(topCard, points, wins) {
+    update(points, wins) {
         // Draw deck space
         this.draw()
         
@@ -120,14 +192,8 @@ class DeckSpaceSprite extends ImageSprite {
         context.fillStyle = "white"
         context.font = "30px Arial";
         context.fillText(points, this.position.x + (this.width / 2), this.position.y - 10)
-
-        // Drawing card ontop of deckspace
-        if(topCard) { 
-            this.topCardSprite.updateCard(topCard.number, topCard.type)
-            this.topCardSprite.draw()
-        }
         
-
+        // Drawing the win indicator icons
         for(let i = 0; i < wins; i++){
             winInd.position.x = this.position.x + 20 + ( 20 * i)
             winInd.position.y = this.position.y + 22
@@ -195,7 +261,7 @@ function setUpDeckSpaces() {
     return deckSpaces
 
 }
-
+// Called to set up button sprites
 function setUpButtons(){
     const buttons = [
         new ButtonSprite({
@@ -232,7 +298,38 @@ const deckSpaces = setUpDeckSpaces()
 const buttons = setUpButtons()
 
 // Initalizing draw deck visual
-var drawDeckSprite = new CardSprite({
+var drawDeckSprite = new ImageSprite({
+    position:{
+        x: canvas.width / 2 - (CARD_WIDTH / 2),
+        y: canvas.height / 2 - (CARD_HEIGHT / 2)
+    },
+    size:{
+        width: CARD_WIDTH,
+        height: CARD_HEIGHT
+    },
+    imageSrc: '../img/cards/c.png'
+})
+var playerTopCardSprite = new ImageSprite({
+    position:deckSpaces[0].centerPosition,
+    size:{
+        width: CARD_WIDTH,
+        height: CARD_HEIGHT
+    },
+    imageSrc: '../img/cards/blue/c5.png'
+})
+playerTopCardSprite.visibility = false
+var opponentTopCardSprite = new ImageSprite({
+    position:deckSpaces[1].centerPosition,
+    size:{
+        width: CARD_WIDTH,
+        height: CARD_HEIGHT
+    },
+    imageSrc: '../img/cards/red/c10.png'
+})
+opponentTopCardSprite.visibility = false
+
+// Initailizing animation deck card 
+var animDeckSprite = new CardSprite({
     position:{
         x: canvas.width / 2 - (CARD_WIDTH / 2),
         y: canvas.height / 2 - (CARD_HEIGHT / 2)
@@ -240,6 +337,19 @@ var drawDeckSprite = new CardSprite({
     number:5,
     type: "green"
 })
+animDeckSprite.currentImage = animDeckSprite.backCardImg 
+
+// Initailizing opponent animation deck card 
+var opponentCardSprite = new CardSprite({
+    position:{
+        x: canvas.width / 2 - (CARD_WIDTH / 2),
+        y: -10 - CARD_HEIGHT
+    },
+    number:5,
+    type: "green"
+})
+opponentCardSprite.currentImage = opponentCardSprite.backCardImg 
+
 // Initializing image sprite
 const background = new ImageSprite({
     position:{

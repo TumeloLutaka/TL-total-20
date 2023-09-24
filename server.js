@@ -43,7 +43,7 @@ io.on('connection', socket => {
           socket.emit('greeting', `Success, Room: ${roomId} does not exist wait for other player to join`)
           socket.emit('set-player', 1)
           socket.join(roomId)
-          createRoom(roomId)
+          createRoom(roomId) 
         }
       })
 
@@ -84,6 +84,9 @@ io.on('connection', socket => {
           case 'draw-card':
             playerAction(data.roomId, data.action, {player: data.player})
             break
+          case 'next-phase':
+            playerAction(data.roomId, data.action, {phase:data.phase})
+            break
         }
 
         // Sending new data to players after player action
@@ -97,20 +100,16 @@ io.on('disconnect', () => {
 })
 
 // Function to send game state to users in room
-let interval
 function runGameInterval(roomId) {
-  if(interval) clearInterval(interval)
   const gameState = getGameState(roomId)
-
-  interval = setInterval(() => {
-    io.to(roomId).emit('run-game', JSON.stringify(gameState))
   
-    // Checking if room game is over and deleting room
-    if(gameState.winner !== null){
-      removeRoom(roomId)
-      clearInterval(interval)
-    }
-  }, 100)
+  io.to(roomId).emit('run-game', JSON.stringify(gameState))
+  
+  // Checking if room game is over and deleting room
+  if(gameState.winner !== null){
+    removeRoom(roomId)
+    clearInterval(interval)
+  }
 
   
 }
