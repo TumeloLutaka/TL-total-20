@@ -8,16 +8,25 @@
 </head>
 <body>
     <h1>Lobby</h1>
-    <form id="create-game-form">
-        <input type="text" name="create-game" id="create-game">
-        <button type="submit" class="btn">Create Game</button>
-    </form>
-    
-    <form id="join-game-form">
-        <input type="text" name="join-game" id="join-game">
-        <button type="submit" class="btn">Join Game</button>
-    </form>
-
+    <div class="content">
+        <div class="side-bar">
+            <form id="create-game-form">
+                <label for="create-game">Create Game:</label> <br>
+                <input type="text" name="create-game" id="create-game">
+                <button type="submit" class="btn">Create</button>
+            </form>
+            
+            <form id="join-game-form">
+                <label for="join-game">Join Game:</label><br>
+                <input type="text" name="join-game" id="join-game">
+                <button type="submit" class="btn">Join</button>
+            </form>
+        </div>
+        <div class="main">
+            List of active games
+        </div>
+    </div>
+        
     <script src="/socket.io/socket.io.js"></script>
     <script src="/javascript/index.js"></script>
 </body>

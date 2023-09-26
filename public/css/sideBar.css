@@ -1,0 +1,43 @@
+.side-bar {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: fit-content;
+    height: 100%;
+    padding: 0 20px;
+    border-radius: 10px;
+    background-image: linear-gradient(90deg, #2d82b5, #015c92);
+    box-shadow: -5px 5px rgba(0, 0, 0, 0.15);
+}
+
+.side-bar label {
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+}
+
+.side-bar input {
+    align-items: flex-start;
+    padding: 10px 16px;
+    border: 2px solid rgba(255, 255, 255, 0.75);
+    border-radius: 10px;
+    background-color: transparent;
+    color: white;
+}
+
+.side-bar input:focus {
+    outline: none;
+    border: 2px solid lightgreen;
+}
+
+.side-bar .btn {
+    font-size: 16px;
+    text-decoration: none;
+    margin: 10px 0;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 5px;
+    background-color: lightgreen;
+    color: white;
+    cursor: pointer;
+}
