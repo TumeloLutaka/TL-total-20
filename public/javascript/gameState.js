@@ -1,11 +1,14 @@
 const Deck = require('./deck')
 
+// List of rooms that have been created by the players.
 const ROOMS  = [
     // {
     //     roomId: "tumelo",
     //     gameState: new GameState()
     // }
 ]
+
+// SERVER FUNCTIONS
 
 // Function that server calls to create a room
 function createRoom(roomId) {
@@ -19,12 +22,17 @@ function createGame(roomId) {
     room.gameState = new GameState()
 }
 
-// Function get game state
+// Returns requested game state using room ID
 function getGameState(roomId) {
     const room = ROOMS.find( room => room.roomId === roomId)
     return room.gameState
 }
     
+// Returns the ROOMS list
+function getRooms(){
+    return ROOMS
+}
+
 // Function that checks if a room with a partciular id has already been created
 function roomExists(roomId) {
     const room = ROOMS.find( room => room.roomId === roomId )
@@ -32,6 +40,7 @@ function roomExists(roomId) {
     else return false
 }
 
+// Removes room when player's leave.
 function removeRoom(roomId) {
     // Checking if room exists
     const room = ROOMS.find( room => room.roomId === roomId )
@@ -41,6 +50,8 @@ function removeRoom(roomId) {
         ROOMS.splice(index, 1)
     }
 }
+
+// GAMEPLAY FUNCTIONS
 
 // Function called to edit gameState based on specific player actions
 function playerAction(roomId, action, data) {
@@ -170,53 +181,53 @@ function resetRound(room){
 
 class GameState {
     constructor(){
-    const deck1 = new Deck()
-    const deck2 = new Deck()
-    
-    this.drawDeck = {
-        deck: new Deck(true),
-        currentTopCard: 0
-    }
-    this.phase = 'playing'
-    this.players = {
-        player1: {
-            hand: this.drawFirstFive(deck1), 
-            canPlay:true,
-            isLocked:false,
-            playedIndex: null,
-            points: 0,
-            wins: 0
-        },
-        player2: {
-            hand: this.drawFirstFive(deck2),
-            canPlay:false,
-            isLocked:false,
-            playedIndex: null,
-            points: 0,
-            wins: 0
+        const deck1 = new Deck()
+        const deck2 = new Deck()
+        
+        this.drawDeck = {
+            deck: new Deck(true),
+            currentTopCard: 0
         }
+        this.phase = 'playing'
+        this.players = {
+            player1: {
+                hand: this.drawFirstFive(deck1), 
+                canPlay:true,
+                isLocked:false,
+                playedIndex: null,
+                points: 0,
+                wins: 0
+            },
+            player2: {
+                hand: this.drawFirstFive(deck2),
+                canPlay:false,
+                isLocked:false,
+                playedIndex: null,
+                points: 0,
+                wins: 0
+            }
+        }
+        this.round = 1
+        this.winner = null
     }
-    this.round = 1
-    this.winner = null
-}
 
-// Draw five cards for player.
-drawFirstFive(deck) {
-    let hand = []
-
-    for (let i = 0; i < 5; i++){
-        hand.push(deck.cards[i])
+    drawFirstFive(deck) {
+        let hand = []
+    
+        for (let i = 0; i < 5; i++){
+            hand.push(deck.cards[i])
+        }
+    
+        return hand
+    
     }
-
-    return hand
-
-}
 }
 
 module.exports = {
     createGame,
     createRoom,
     getGameState,
+    getRooms,
     playerAction,
     removeRoom,
     roomExists
