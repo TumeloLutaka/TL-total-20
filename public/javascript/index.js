@@ -51,7 +51,8 @@ createGameForm.addEventListener("submit", function(event) {
     
     // Access form elements by their 'name' attribute
     const createGame = createGameForm.elements["create-game"].value.trim();
-
+    // Get a reference to the checkbox element
+    const checkbox = document.getElementById("myCheckbox");
     // Check if input was empty
     if(createGame === ''){
         alert('Field is Empty')

@@ -11,14 +11,19 @@
     <div class="content">
         <div class="side-bar">
             <form id="create-game-form">
-                <label for="create-game">Create Game:</label> <br>
-                <input type="text" name="create-game" id="create-game">
+                <!-- input text -->
+                <label for="create-game">Create Game:</label><br>
+                <input class="mb-1" type="text" name="create-game" id="create-game"><br>
+                
+                <!-- Check box -->
+                <label class="label-min" for="openId">Open Id:</label>
+                <input type="checkbox" name="openId" id="openId"> <br>
                 <button type="submit" class="btn">Create</button>
             </form>
             
             <form id="join-game-form">
                 <label for="join-game">Join Game:</label><br>
-                <input type="text" name="join-game" id="join-game">
+                <input type="text" name="join-game" id="join-game"><br>
                 <button type="submit" class="btn">Join</button>
             </form>
         </div>
