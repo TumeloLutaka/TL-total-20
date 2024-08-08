@@ -60,13 +60,13 @@ class ImageTextSprite {
     }
 }
 class CardSprite{
-    constructor({position, number, type}) {
+    constructor({position, number, type, isPlayed}) {
         this.position = position
         this.width = CARD_WIDTH
         this.height = CARD_HEIGHT
         this.number = number
         this.type = type
-        this.animate = ""
+        this.isPlayed = isPlayed
         this.currentImage
         
         this.image = new Image()
@@ -77,56 +77,10 @@ class CardSprite{
         this.currentImage = this.image
         
         // move animation variables.
-        this.multipler = -1
-        this.newPosition = null
-        this.speed = 5
         this.topCard = null
-        this.nextPhase = ""
     }    
     
     draw() {
-        // Switch to determine if animations should be played on current card
-        switch(this.animate){
-            case "draw-card":
-                animMoveCard(
-                    this, 
-                    this.topCard, 
-                    {
-                        x: canvas.width / 2 - (CARD_WIDTH / 2),
-                        y: canvas.height / 2 - (CARD_HEIGHT / 2)
-                    }, 
-                    this.animate,
-                    this.nextPhase
-                )
-                break 
-            case "move-card":
-                animMoveCard(
-                    this, 
-                    this.topCard, 
-                    {
-                        x: 0,
-                        y: 0
-                    }, 
-                    this.animate,
-                    this.nextPhase
-                )
-                break 
-            case "oppo-card":
-                animMoveCard(
-                    this, 
-                    this.topCard, 
-                    {
-                        x: canvas.width / 2 - (CARD_WIDTH / 2),
-                        y: -10 - CARD_HEIGHT
-                    }, 
-                    this.animate
-                )
-                break
-            case "turn-card":
-                animTurnCard(this, CARD_WIDTH)
-                break 
-        }
-
         context.drawImage(this.currentImage, this.position.x, this.position.y, this.width, this.height)
     }
     updateCard(number = this.number, type = this.type) {
@@ -146,29 +100,6 @@ class CardSprite{
         newImage.onload = () => {
             this.image = newImage 
         }
-    }
-    animation(animation, data){
-        // Telling card what animation to play when drawing.
-        this.animate = animation
-        
-        this.newPosition = data.position
-        this.topCard = data.topCard
-        this.multipler = -1
-        this.nextPhase = data.phase
-
-        // Switch to decide which variables to affect for animation to run properly.
-        // switch(animation){
-        //     case "move-card":
-        //     case "oppo-card":
-        //         this.newPosition = data.position
-        //         this.topCard = data.topCard
-        //         break
-        //     case "turn-card":
-        //         this.newPosition = data.position
-        //         this.topCard = data.topCard
-        //         this.multipler = -1
-        //         break
-        // }
     }
 }
 class DeckSpaceSprite extends ImageSprite {
@@ -387,7 +318,7 @@ const playerIndicator = new ImageTextSprite({
     imageSrc: "../img/player-indicator.png"
 })
 // Initializing player indicator.
-const phaseIndictor = new ImageTextSprite({
+const phaseIndicator = new ImageTextSprite({
     position:{
         x:(CANVAS_WIDTH / 2) - 60,
         y:130

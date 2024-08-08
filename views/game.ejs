@@ -7,16 +7,19 @@
     <title>Total Twenty</title>
 </head>
 <body>
+    <!-- Game screen -->
     <canvas class="game-screen"></canvas>
+
+    <!-- Popup to display winner -->
     <div class="prompt" style="display: none;">
         <h1 class="winner-text">Player 0</h1>
         <button id="lobby-btn" class="btn" style="background-color: lightsalmon;">Lobby</button>
     </div>  
  
+    <!-- Socket IO Client -->
     <script src="/socket.io/socket.io.js"></script>
-    
     <script src="/javascript/animations.js"></script>
     <script src="/javascript/sprites.js"></script>
-    <script src="/javascript/main.js"></script>
+    <script src="/javascript/game.js"></script>
 </body>
 </html>

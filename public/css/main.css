@@ -1,6 +1,7 @@
 @import url('./game.css');
 @import url('./sideBar.css');
 @import url('./games-list.css');
+@import url('./toast.css');
 
 * {
     font-family: Arial, Helvetica, sans-serif;

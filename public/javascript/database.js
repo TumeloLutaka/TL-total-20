@@ -1,5 +1,4 @@
 const Deck = require('./deck')
-
 // List of rooms that have been created by the players.
 const ROOMS  = [
     // {
@@ -9,7 +8,6 @@ const ROOMS  = [
 ]
 
 // SERVER FUNCTIONS
-
 // Function that server calls to create a room
 function createRoom(roomId) {
     // Pushing new room to array
@@ -59,17 +57,16 @@ function playerAction(roomId, action, data) {
     // Get player based on number
     let player = data.player === '1' ? room.gameState.players.player1 : room.gameState.players.player2 
     let opponet = data.player === '1' ? room.gameState.players.player2 : room.gameState.players.player1 
-
+ 
     // Change points based on card 
     let card
-    
     switch(action){
         case 'play-card':
             // Change points based on card 
             card = player.hand[data.cardIndex]
             player.playedIndex = data.cardIndex
             // Remove card from player hand
-            // player.hand.splice(data.cardIndex, 1)
+            player.hand[data.cardIndex].isPlayed = true;
             room.gameState.phase = 'picking'
             //Change player points
             tabulatePoints(room, player, opponet, card)

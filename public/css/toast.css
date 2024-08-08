@@ -1,0 +1,18 @@
+.toast {
+    position: fixed;
+    bottom: -100%;
+    right: 50%;
+    transform: translateX(50%);
+    font-size: 14px;
+    padding: 10px 16px;
+    border-radius: 50px;
+    background-color: green;
+    color: white;
+    opacity: .7;
+    transition: bottom 0.4s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.show-toast {
+    bottom: 10%;
+}
